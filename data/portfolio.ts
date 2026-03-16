@@ -208,5 +208,6 @@ export const messageAndImpact = [
 export const socialLinks = [
   { label: "Email", href: "mailto:igalvan6@miners.utep.edu" },
   { label: "Phone", href: "tel:+19156303282" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/imanol-galv%C3%A1n-2699a1321" },
   { label: "GitHub", href: "https://github.com/Imanol2006/Imanol" }
 ];
