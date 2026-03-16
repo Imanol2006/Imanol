@@ -16,7 +16,7 @@ const sora = Sora({
 export const metadata: Metadata = {
   title: "Imanol Galvan | Portfolio",
   description:
-    "A cinematic portfolio for Imanol Galvan, a UTEP computer science student building at the intersection of software engineering, AI, and entrepreneurship."
+    "A portfolio for Imanol Galvan, a UTEP computer science student building across software engineering, AI, leadership, and entrepreneurship."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

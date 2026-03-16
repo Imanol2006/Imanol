@@ -10,8 +10,10 @@ import {
   featuredProjects,
   identityMoments,
   journey,
+  messageAndImpact,
   navItems,
-  philosophy,
+  philosophyHighlights,
+  philosophyManifesto,
   profile,
   socialLinks
 } from "@/data/portfolio";
@@ -424,7 +426,7 @@ function ProjectsSection() {
                 <div className={cn("project-copy order-2 space-y-5 lg:order-1", index % 2 === 1 && "lg:order-2")}>
                   <div className="flex flex-wrap gap-3 text-[0.7rem] uppercase tracking-[0.32em] text-white/38">
                     <span>{project.category}</span>
-                    <span>•</span>
+                    <span>/</span>
                     <span>{project.role}</span>
                   </div>
                   <h3 className="headline-md max-w-2xl text-balance">{project.title}</h3>
@@ -433,7 +435,7 @@ function ProjectsSection() {
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="glass-panel px-5 py-4">
                       <p className="text-[0.65rem] uppercase tracking-[0.3em] text-white/35">Tech stack</p>
-                      <p className="mt-3 text-sm text-white/74">{project.stack.join(" • ")}</p>
+                      <p className="mt-3 text-sm text-white/74">{project.stack.join(" / ")}</p>
                     </div>
                     <div className="glass-panel px-5 py-4">
                       <p className="text-[0.65rem] uppercase tracking-[0.3em] text-white/35">Impact</p>
@@ -646,19 +648,44 @@ function VisionSection() {
   return (
     <section id="vision" ref={sectionRef} className="section-frame scroll-mt-28">
       <div className="shell rounded-[2.4rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)),radial-gradient(circle_at_top,rgba(143,194,255,0.16),transparent_40%)] px-6 py-16 md:px-10 md:py-20 lg:px-14 lg:py-24">
-        <span className="section-kicker">Vision</span>
-        <div className="space-y-12 md:space-y-16 lg:max-w-5xl">
-          {philosophy.map((line, index) => (
-            <p
-              key={line}
-              ref={(node) => {
-                phraseRefs.current[index] = node;
-              }}
-              className="headline-lg text-balance text-white/94"
-            >
-              {line}
+        <div className="grid gap-12 lg:grid-cols-[0.34fr_0.66fr] lg:gap-14">
+          <div className="space-y-6">
+            <span className="section-kicker">Vision</span>
+            <h2 className="headline-lg text-balance">A philosophy built around movement, experimentation, and becoming.</h2>
+            <p className="copy-lg max-w-xl text-balance">
+              This is the mindset underneath the resume lines and project names: how I think about action, growth, risk, and building a life with intention.
             </p>
-          ))}
+            <div className="flex flex-wrap gap-2 pt-2">
+              {philosophyHighlights.map((line) => (
+                <span key={line} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/68">
+                  {line}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-10">
+            <div className="space-y-8">
+              {philosophyManifesto.map((line, index) => (
+                <p
+                  key={line}
+                  ref={(node) => {
+                    phraseRefs.current[index] = node;
+                  }}
+                  className="copy-lg max-w-4xl text-balance text-white/88 md:text-[1.2rem] md:leading-9"
+                >
+                  {line}
+                </p>
+              ))}
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {messageAndImpact.map((item) => (
+                <article key={item.title} className="glass-panel px-6 py-6">
+                  <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">{item.title}</p>
+                  <p className="mt-4 text-base leading-8 text-white/78">{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -722,7 +749,7 @@ function ContactSection() {
             <div className="contact-reveal">
               <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">Education</p>
               <p className="mt-3 text-lg text-white/76">{profile.education.school}</p>
-              <p className="mt-2 text-sm text-white/54">{profile.education.degree} • {profile.education.minor} • {profile.education.graduation}</p>
+              <p className="mt-2 text-sm text-white/54">{profile.education.degree} / {profile.education.minor} / {profile.education.graduation}</p>
             </div>
             <div className="contact-reveal">
               <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">Elsewhere</p>
@@ -737,7 +764,7 @@ function ContactSection() {
           </div>
         </div>
         <div className="contact-reveal mt-12 border-t border-white/10 pt-6 text-sm text-white/42">
-          Current content reflects your latest background, leadership roles, ecosystem involvement, and project direction, and can keep evolving as your story expands.
+          Built around your current academic path, leadership roles, startup ecosystem involvement, projects, and philosophy of growth through action.
         </div>
       </div>
     </section>
