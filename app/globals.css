@@ -75,6 +75,15 @@ body {
     @apply mx-auto;
   }
 
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .section-frame {
     @apply relative py-24 md:py-32 lg:py-40;
   }

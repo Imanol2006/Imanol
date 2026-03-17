@@ -142,22 +142,22 @@ function PortfolioNav() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 py-3 md:px-6 md:py-5">
-      <div className="shell glass-panel flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
-        <a href="#hero" data-scroll="true" className="flex items-center gap-3">
+      <div className="shell glass-panel flex items-center gap-3 px-4 py-3 md:px-6 md:py-4">
+        <a href="#hero" data-scroll="true" className="flex min-w-0 shrink-0 items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-sm font-semibold tracking-[0.3em] text-white/82">{profile.initials}</span>
-          <div>
-            <p className="text-sm font-semibold tracking-[0.18em] text-white">{profile.name}</p>
-            <p className="text-xs text-white/45">{profile.role}</p>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold tracking-[0.18em] text-white">{profile.name}</p>
+            <p className="line-clamp-2 max-w-[15rem] text-xs text-white/45 xl:max-w-[18rem]">{profile.role}</p>
           </div>
         </a>
-        <nav className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.02] p-1 lg:flex">
+        <nav className="no-scrollbar hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full border border-white/8 bg-white/[0.02] p-1 lg:flex">
           {navItems.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
               data-scroll="true"
               className={cn(
-                "rounded-full px-4 py-2 text-sm transition duration-300",
+                "shrink-0 rounded-full px-3 py-2 text-sm transition duration-300 xl:px-4",
                 activeSection === item.id ? "bg-white/10 text-white" : "text-white/52 hover:text-white"
               )}
             >
@@ -165,9 +165,9 @@ function PortfolioNav() {
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 md:flex">
-          <a href={`mailto:${profile.email}`} className="secondary-button">Email</a>
-          <a href="#contact" data-scroll="true" className="primary-button">{profile.primaryCta}</a>
+        <div className="hidden shrink-0 items-center gap-3 md:flex">
+          <a href={`mailto:${profile.email}`} className="secondary-button whitespace-nowrap">Email</a>
+          <a href="#contact" data-scroll="true" className="primary-button whitespace-nowrap">{profile.primaryCta}</a>
         </div>
         <details className="group relative md:hidden">
           <summary className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white marker:hidden">
@@ -291,47 +291,15 @@ function IdentitySection() {
     }
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.matchMedia({
-        "(min-width: 1024px)": () => {
-          const lines = textRefs.current.filter(Boolean);
-
-          gsap.set(lines, { opacity: 0.18, y: 50 });
-          gsap.set(lines[0], { opacity: 1, y: 0 });
-
-          const timeline = gsap.timeline({
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "+=220%",
-              scrub: true,
-              pin: true
-            }
-          });
-
-          lines.forEach((line, index) => {
-            if (!line) {
-              return;
-            }
-
-            if (index > 0) {
-              timeline.to(lines[index - 1], { opacity: 0.18, y: -40, duration: 1 }, index);
-            }
-
-            timeline.to(line, { opacity: 1, y: 0, duration: 1 }, index);
-          });
-        },
-        "(max-width: 1023px)": () => {
-          gsap.from(textRefs.current.filter(Boolean), {
-            opacity: 0,
-            y: 30,
-            stagger: 0.18,
-            duration: 0.9,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 72%"
-            }
-          });
+      gsap.from(textRefs.current.filter(Boolean), {
+        opacity: 0,
+        y: 30,
+        stagger: 0.18,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 72%"
         }
       });
     }, sectionRef);
@@ -821,46 +789,15 @@ function VisionSection() {
     }
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.matchMedia({
-        "(min-width: 1024px)": () => {
-          const phrases = phraseRefs.current.filter(Boolean);
-          gsap.set(phrases, { opacity: 0.12, y: 70 });
-          gsap.set(phrases[0], { opacity: 1, y: 0 });
-
-          const timeline = gsap.timeline({
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "+=240%",
-              scrub: true,
-              pin: true
-            }
-          });
-
-          phrases.forEach((phrase, index) => {
-            if (!phrase) {
-              return;
-            }
-
-            if (index > 0) {
-              timeline.to(phrases[index - 1], { opacity: 0.12, y: -40, duration: 1 }, index);
-            }
-
-            timeline.to(phrase, { opacity: 1, y: 0, duration: 1 }, index);
-          });
-        },
-        "(max-width: 1023px)": () => {
-          gsap.from(phraseRefs.current.filter(Boolean), {
-            opacity: 0,
-            y: 36,
-            stagger: 0.14,
-            duration: 0.9,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 72%"
-            }
-          });
+      gsap.from(phraseRefs.current.filter(Boolean), {
+        opacity: 0,
+        y: 36,
+        stagger: 0.14,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 72%"
         }
       });
     }, sectionRef);
