@@ -1,7 +1,7 @@
 export const profile = {
   name: "Imanol Galvan",
   initials: "IG",
-  role: "Computer science, AI, and entrepreneurship",
+  role: "Computer science, AI, entrepreneurship, and leadership",
   location: "El Paso, Texas",
   phone: "(915) 630-3282",
   email: "igalvan6@miners.utep.edu",
@@ -12,7 +12,7 @@ export const profile = {
     eyebrow: "Personal flagship portfolio",
     title: "Building software, AI, and entrepreneurial momentum through repeated action.",
     subtitle:
-      "Computer science student, builder, mentor, and early-stage entrepreneur at UTEP, growing through projects, startup ecosystems, technical communities, public-facing leadership, and real execution.",
+      "Computer science student, builder, mentor, officer, and early-stage entrepreneur at UTEP, growing through projects, startup ecosystems, technical communities, public-facing leadership, and real execution.",
     stats: [
       { label: "Education", value: "UTEP Computer Science" },
       { label: "Scholar", value: "NSF S-STEM" },
@@ -32,14 +32,15 @@ export const navItems = [
   { id: "identity", label: "Identity" },
   { id: "projects", label: "Projects" },
   { id: "journey", label: "Journey" },
+  { id: "experience", label: "Experience" },
   { id: "capabilities", label: "Capabilities" },
   { id: "vision", label: "Vision" },
   { id: "contact", label: "Contact" }
 ];
 
 export const identityMoments = [
-  "I build at the intersection of software engineering, artificial intelligence, entrepreneurship, and human-centered technology, but the deeper pattern is simpler: I move first and learn fast.",
-  "A lot of my growth has come from showing up before I feel fully ready, pitching ideas, joining ecosystems, mentoring students, facilitating workshops, and stepping into rooms where I know I will be forced to grow.",
+  "I build at the intersection of software engineering, artificial intelligence, entrepreneurship, and human-centered technology, but the deeper pattern is simpler: I move first, learn fast, and keep building in public.",
+  "A lot of my growth has come from taking on visible responsibility early, whether that means pitching ideas, leading workshops, serving in officer roles, mentoring students, or stepping into rooms where I know I will be forced to grow.",
   "I care about technology that helps people learn, build confidence, discover opportunities, and move forward with more clarity, especially students, young builders, and people still figuring out what they are capable of."
 ];
 
@@ -95,6 +96,19 @@ export const featuredProjects = [
     impact:
       "Deepened real-world understanding of scalable systems, backend optimization, messaging infrastructure, and debugging across distributed environments.",
     accents: ["Scale", "Messaging", "Systems"]
+  },
+  {
+    title: "Dell Tech Academy",
+    category: "Operations and Supply Chain Strategy",
+    tagline:
+      "Case-based strategy work focused on logistics, resilience, and operational decision making under pressure.",
+    description:
+      "Selected to participate in Dell Tech Academy across two competitive experiences, working on real-world manufacturing and supply chain challenges. The work involved logistics planning, demand forecasting, risk analysis, business continuity, delivery constraints, and presenting strategic recommendations to Dell representatives and mentors.",
+    stack: ["Supply chain analysis", "Operations strategy", "Risk assessment", "Team presentation", "Business continuity"],
+    role: "Case competition participant",
+    impact:
+      "Expanded my thinking beyond software into systems, logistics, and execution, while reinforcing how leadership and analytical decision making work together in high-stakes environments.",
+    accents: ["Strategy", "Operations", "Leadership"]
   }
 ];
 
@@ -133,6 +147,96 @@ export const journey = [
     description:
       "Built trust by solving real problems for students, faculty, and community programs through UTEP technology support, MiniTec coordination, STTE volunteering, FOSS logistics leadership, and outreach work centered on confidence, access, and learning. A lot of my philosophy comes from this: people remember whether you showed up.",
     note: "UTEP, MiniTec, STTE, FOSS Club"
+  }
+];
+
+export const professionalExperience = [
+  {
+    role: "STEAM Intern",
+    organization: "Insights Science Discovery",
+    period: "Spring 2026 - Present",
+    description:
+      "Support the digital and operational side of science and technology outreach programs, with work spanning digital content, web design, event support, and student-facing program execution.",
+    highlights: [
+      "Support digital content and web design for outreach initiatives",
+      "Help organize science fairs, mobile pop-up events, and educational programming",
+      "Assist with student project support, workshops, and interdisciplinary STEAM resources"
+    ]
+  },
+  {
+    role: "Program and Operations Assistant Intern",
+    organization: "Pioneers 21 Business Incubator and Co-Work Space",
+    period: "Summer 2025",
+    description:
+      "Worked inside a startup incubator helping support founders, entrepreneurship programming, and operational materials while learning venture building from the inside.",
+    highlights: [
+      "Built founder-facing onboarding resources, startup toolkits, and support materials",
+      "Helped support pitch competitions, bootcamps, accelerator programming, and Tacos & Tech-ila events",
+      "Developed practical exposure to market research, pricing, sales thinking, startup formation, and entrepreneurial operations"
+    ]
+  },
+  {
+    role: "Technology Support Assistant",
+    organization: "The University of Texas at El Paso",
+    period: "September 2024 - February 2026",
+    description:
+      "Provided front-line technology support inside the College of Education, solving real technical problems while helping users feel more confident with the tools around them.",
+    highlights: [
+      "Supported computer labs, classroom technology, faculty tools, and podcast studio equipment",
+      "Troubleshot software and hardware issues across day-to-day campus operations",
+      "Resolved 100+ technical support requests while balancing service, communication, and reliability"
+    ]
+  },
+  {
+    role: "Disney College Program Intern",
+    organization: "Walt Disney World",
+    period: "September 2025 - January 2026",
+    description:
+      "Worked across park operations with a strong focus on safety, guest experience, and execution, while learning from Disney's culture of detail, service, and storytelling.",
+    highlights: [
+      "Supported operations primarily at Magic Kingdom and across other major parks and Disney Springs",
+      "Worked in environments where experience quality, detail, and consistency mattered every day",
+      "Attended classes and events that deepened my interest in storytelling, Imagineering, and meaningful experience design"
+    ]
+  }
+];
+
+export const leadershipRoles = [
+  {
+    organization: "ColorStack at UTEP",
+    role: "Technical Officer and Professional Development Leader",
+    description:
+      "Helped launch the chapter and lead student-facing technical and professional development programming, including LinkedIn and personal branding workshops."
+  },
+  {
+    organization: "GDG on Campus: UTEP",
+    role: "Mentor",
+    description:
+      "Support students in their professional and technical growth through mentorship, guidance, and shared learning."
+  },
+  {
+    organization: "FOSS Club at UTEP",
+    role: "Logistics Officer",
+    description:
+      "Support planning, coordination, and operations for an open-source student community."
+  },
+  {
+    organization: "MiniTec",
+    role: "Coordinator",
+    description:
+      "Help lead programming and activities for children with disabilities, combining service, patience, creativity, and community-centered leadership."
+  },
+  {
+    organization: "Studio G UTEP",
+    role: "Venture Development Mentee",
+    description:
+      "Developed startup thinking through customer discovery, business planning, funding strategy, and founder-focused workshops."
+  },
+  {
+    organization: "UTEP Undergraduate Fellows Program",
+    role: "Undergraduate Fellow",
+    description:
+      "Participate in campus leadership, mentorship, and professional development programming centered on long-term academic and professional growth."
   }
 ];
 

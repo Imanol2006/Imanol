@@ -10,10 +10,12 @@ import {
   featuredProjects,
   identityMoments,
   journey,
+  leadershipRoles,
   messageAndImpact,
   navItems,
   philosophyHighlights,
   philosophyManifesto,
+  professionalExperience,
   profile,
   socialLinks
 } from "@/data/portfolio";
@@ -532,6 +534,83 @@ function JourneySection() {
   );
 }
 
+function ExperienceSection() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion || !sectionRef.current) {
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.from(".experience-card", {
+        opacity: 0,
+        y: 36,
+        duration: 0.85,
+        stagger: 0.08,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 72%"
+        }
+      });
+
+      gsap.from(".leadership-card", {
+        opacity: 0,
+        y: 28,
+        duration: 0.75,
+        stagger: 0.06,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 58%"
+        }
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  return (
+    <section id="experience" ref={sectionRef} className="section-frame scroll-mt-28">
+      <div className="shell space-y-12 md:space-y-16">
+        <SectionHeading
+          eyebrow="Experience and leadership"
+          title="Real roles, real responsibility, and leadership that shows up in public."
+          description="Beyond interests and projects, this is where the responsibility shows: leadership roles, operational work, student support, community service, and the environments where I have actually had to deliver."
+        />
+        <div className="grid gap-4 xl:grid-cols-2">
+          {professionalExperience.map((item) => (
+            <article key={`${item.role}-${item.organization}`} className="experience-card glass-panel px-6 py-6 md:px-7 md:py-7">
+              <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">{item.period}</p>
+              <h3 className="mt-3 text-2xl font-semibold text-white md:text-3xl">{item.role}</h3>
+              <p className="mt-2 text-base uppercase tracking-[0.24em] text-white/40">{item.organization}</p>
+              <p className="mt-5 copy-lg max-w-3xl">{item.description}</p>
+              <div className="mt-6 grid gap-3">
+                {item.highlights.map((highlight) => (
+                  <div key={highlight} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-white/72">
+                    {highlight}
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {leadershipRoles.map((item) => (
+            <article key={`${item.organization}-${item.role}`} className="leadership-card glass-panel px-6 py-6">
+              <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">{item.organization}</p>
+              <h3 className="mt-3 text-xl font-semibold text-white">{item.role}</h3>
+              <p className="mt-4 text-base leading-8 text-white/76">{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CapabilitiesSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -780,6 +859,7 @@ export default function PortfolioExperience() {
         <IdentitySection />
         <ProjectsSection />
         <JourneySection />
+        <ExperienceSection />
         <CapabilitiesSection />
         <VisionSection />
         <ContactSection />
