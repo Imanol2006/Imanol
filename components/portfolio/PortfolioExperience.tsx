@@ -7,6 +7,8 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import {
   capabilityGroups,
+  beyondCode,
+  currentMomentum,
   featuredProjects,
   identityMoments,
   journey,
@@ -17,7 +19,8 @@ import {
   philosophyManifesto,
   professionalExperience,
   profile,
-  socialLinks
+  socialLinks,
+  technicalBreakdown
 } from "@/data/portfolio";
 import { useActiveSection } from "@/hooks/useActiveSection";
 
@@ -457,6 +460,99 @@ function ProjectsSection() {
   );
 }
 
+function MomentumSection() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion || !sectionRef.current) {
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.from(".momentum-card", {
+        opacity: 0,
+        y: 34,
+        duration: 0.85,
+        stagger: 0.08,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 72%"
+        }
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  return (
+    <section id="momentum" ref={sectionRef} className="section-frame scroll-mt-28">
+      <div className="shell space-y-12 md:space-y-16">
+        <SectionHeading
+          eyebrow="Currently building"
+          title="This is not a static portfolio. It reflects active momentum."
+          description="The pattern is ongoing: build, support, test, show up, learn, repeat. The goal is not just to list what I have done, but to show what I am actively compounding."
+        />
+        <div className="grid gap-4 xl:grid-cols-3">
+          {currentMomentum.building.map((item) => (
+            <article key={item.title} className="momentum-card glass-panel px-6 py-6 md:px-7 md:py-7">
+              <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">Currently building</p>
+              <h3 className="mt-3 text-2xl font-semibold text-white">{item.title}</h3>
+              <p className="mt-4 text-base leading-8 text-white/78">{item.detail}</p>
+            </article>
+          ))}
+        </div>
+        <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+          <article className="momentum-card glass-panel px-6 py-6 md:px-7 md:py-7">
+            <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">Currently learning</p>
+            <div className="mt-5 grid gap-3">
+              {currentMomentum.learning.map((item) => (
+                <div key={item} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-white/72">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </article>
+          <article className="momentum-card glass-panel px-6 py-6 md:px-7 md:py-7">
+            <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">Traction and signals</p>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {currentMomentum.traction.map((item) => (
+                <div key={item} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-white/72">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+          <article className="momentum-card glass-panel px-6 py-6 md:px-7 md:py-7">
+            <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">How I build</p>
+            <div className="mt-5 grid gap-3">
+              {currentMomentum.operatingSystem.map((item) => (
+                <div key={item} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-white/72">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </article>
+          <article className="momentum-card glass-panel px-6 py-6 md:px-7 md:py-7">
+            <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">{technicalBreakdown.title}</p>
+            <p className="mt-4 text-base leading-8 text-white/78">{technicalBreakdown.intro}</p>
+            <div className="mt-5 grid gap-3">
+              {technicalBreakdown.points.map((item) => (
+                <div key={item} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-white/72">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function JourneySection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -666,6 +762,54 @@ function CapabilitiesSection() {
   );
 }
 
+function BeyondCodeSection() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion || !sectionRef.current) {
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.from(".beyond-card", {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 72%"
+        }
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  return (
+    <section id="beyond" ref={sectionRef} className="section-frame scroll-mt-28">
+      <div className="shell space-y-12">
+        <SectionHeading
+          eyebrow="Beyond code"
+          title="The human side matters because it changes how I build."
+          description="The technical side is only part of the story. Service, mentorship, performance, sports, and creative work shape how I lead, communicate, and stay grounded."
+          align="center"
+        />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {beyondCode.map((item) => (
+            <article key={item.title} className="beyond-card glass-panel px-6 py-6 md:px-7 md:py-7">
+              <p className="text-[0.68rem] uppercase tracking-[0.34em] text-white/35">{item.title}</p>
+              <p className="mt-4 text-base leading-8 text-white/78">{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function VisionSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const phraseRefs = useRef<Array<HTMLParagraphElement | null>>([]);
@@ -858,9 +1002,11 @@ export default function PortfolioExperience() {
         <HeroSection />
         <IdentitySection />
         <ProjectsSection />
+        <MomentumSection />
         <JourneySection />
         <ExperienceSection />
         <CapabilitiesSection />
+        <BeyondCodeSection />
         <VisionSection />
         <ContactSection />
       </main>

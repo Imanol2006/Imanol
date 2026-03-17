@@ -10,9 +10,9 @@ export const profile = {
   primaryCta: "Start the conversation",
   hero: {
     eyebrow: "Personal flagship portfolio",
-    title: "Building software, AI, and entrepreneurial momentum through repeated action.",
+    title: "I build AI products, test startup ideas in real environments, and grow through execution, not theory.",
     subtitle:
-      "Computer science student, builder, mentor, officer, and early-stage entrepreneur at UTEP, growing through projects, startup ecosystems, technical communities, public-facing leadership, and real execution.",
+      "Computer Science student at UTEP | NSF S-STEM Scholar | Builder, mentor, officer, and early-stage founder compounding momentum through software, startup ecosystems, digital work, and community leadership.",
     stats: [
       { label: "Education", value: "UTEP Computer Science" },
       { label: "Scholar", value: "NSF S-STEM" },
@@ -31,9 +31,11 @@ export const navItems = [
   { id: "hero", label: "Overview" },
   { id: "identity", label: "Identity" },
   { id: "projects", label: "Projects" },
+  { id: "momentum", label: "Momentum" },
   { id: "journey", label: "Journey" },
   { id: "experience", label: "Experience" },
   { id: "capabilities", label: "Capabilities" },
+  { id: "beyond", label: "Beyond" },
   { id: "vision", label: "Vision" },
   { id: "contact", label: "Contact" }
 ];
@@ -117,7 +119,7 @@ export const journey = [
     year: "2026 - Now",
     title: "Leadership through visibility",
     description:
-      "Serving as a STEAM Intern at Insights Science Discovery, a mentor with GDG on Campus: UTEP, a Technical Officer and professional development leader in ColorStack at UTEP, and a UTEP Undergraduate Fellow. This stage is defined by helping other students become more visible, more prepared, and more confident while continuing to build my own direction in public.",
+      "Serving as a STEAM Intern at Insights Science Discovery, a mentor with GDG on Campus: UTEP, a Technical Officer and professional development leader in ColorStack at UTEP, and a UTEP Undergraduate Fellow. This stage is defined by repeated weekly involvement: workshops, outreach events, digital content, mentoring, program support, and staying visible in the communities I want to help build.",
     note: "INSIGHTS, GDG on Campus, ColorStack, UTEP Undergraduate Fellows"
   },
   {
@@ -131,14 +133,14 @@ export const journey = [
     year: "2025",
     title: "Startup ecosystem immersion",
     description:
-      "Worked inside Pioneers 21 Business Incubator while participating in Studio G, Tech Frontier, Mike Loya entrepreneurship programming, Dell case challenges, and local founder events. This is where entrepreneurship stopped feeling motivational and started becoming practical: market research, pitch prep, founder resources, pricing, sales thinking, and repeated exposure to people actually building.",
+      "Worked inside Pioneers 21 Business Incubator while participating in Studio G, Tech Frontier, Mike Loya entrepreneurship programming, Dell case challenges, and local founder events. This is where entrepreneurship stopped feeling motivational and started becoming practical: market research, pitch prep, founder resources, pricing, sales thinking, validation, and repeated exposure to people actually building.",
     note: "Pioneers 21, Studio G, Tech Frontier, Mike Loya Center"
   },
   {
     year: "2025",
     title: "Pitching and proving ideas",
     description:
-      "Built traction around student-focused AI ideas through STAR, Borderland AI Hackathon, the P21 VMS Pitch Challenge, and Tacos & Tech-ila. Pitching repeatedly taught me that ideas become stronger when they are tested in front of real people, under real constraints, with real feedback.",
+      "Built traction around student-focused AI ideas through STAR, Borderland AI Hackathon, the P21 VMS Pitch Challenge, and Tacos & Tech-ila. Building under deadlines, competing under pressure, and pitching in front of real audiences taught me that ideas get stronger when they are tested in public, under constraints, and with real feedback.",
     note: "STAR, AI Book Boss, STTE, P21 Pitch Challenge"
   },
   {
@@ -150,17 +152,60 @@ export const journey = [
   }
 ];
 
+export const currentMomentum = {
+  building: [
+    {
+      title: "Black Box",
+      detail:
+        "Actively developing an AI acting practice platform with a direction that combines OpenAI APIs, feedback systems, and computer vision layers like MediaPipe and OpenCV."
+    },
+    {
+      title: "STAR",
+      detail:
+        "Continuing to evolve the original student AI concept into something more product-minded, with stronger user thinking, startup framing, and iteration beyond the first pitch win."
+    },
+    {
+      title: "INSIGHTS digital work",
+      detail:
+        "Supporting ongoing web design, digital content, analytics, and outreach systems that connect programs, events, and students to real community-facing experiences."
+    }
+  ],
+  learning: [
+    "Distributed systems, RabbitMQ workflows, messaging patterns, and container-based execution",
+    "AI product development with OpenAI APIs, embeddings, retrieval workflows, and practical feedback loops",
+    "Full-stack architecture across React frontends, backend integration, and product system thinking",
+    "Startup systems like pricing, MVP scope, validation, user discovery, and how to turn ideas into repeatable value"
+  ],
+  traction: [
+    "1st Place - Tacos & Tech-ila audience pitch competition ($1000)",
+    "1st Place - Borderland AI Hackathon",
+    "Innovator Award - STTE Foundation",
+    "Bloomberg Tech Lab participant - systems engineering and distributed systems",
+    "Selected participant - Dell Tech Academy",
+    "NSF S-STEM Scholar",
+    "100+ technical issues resolved at UTEP technology support"
+  ],
+  operatingSystem: [
+    "Start with real problems and environments that matter to actual people.",
+    "Build fast prototypes and get something testable in motion early.",
+    "Use competitions, workshops, communities, and feedback loops as real testing grounds.",
+    "Iterate from what breaks, what people respond to, and what proves useful.",
+    "Prioritize usefulness, clarity, and human value over unnecessary complexity.",
+    "Build in public, stay active, and let execution create the next opportunity."
+  ]
+};
+
 export const professionalExperience = [
   {
     role: "STEAM Intern",
     organization: "Insights Science Discovery",
     period: "Spring 2026 - Present",
     description:
-      "Support the digital and operational side of science and technology outreach programs, with work spanning digital content, web design, event support, and student-facing program execution.",
+      "Support the digital and operational side of science and technology outreach programs, with work spanning digital content, web design, analytics, event support, and student-facing program execution.",
     highlights: [
-      "Support digital content and web design for outreach initiatives",
-      "Help organize science fairs, mobile pop-up events, and educational programming",
-      "Assist with student project support, workshops, and interdisciplinary STEAM resources"
+      "Support digital content, web design, and outreach-facing materials for programs and events",
+      "Contribute to event support and organization for experiences such as SCRSEF, Science on Screen, DinoTracks, and other STEAM initiatives",
+      "Help track engagement, support community-facing communication, and assist with student project support, workshops, and interdisciplinary resources"
     ]
   },
   {
@@ -239,6 +284,46 @@ export const leadershipRoles = [
       "Participate in campus leadership, mentorship, and professional development programming centered on long-term academic and professional growth."
   }
 ];
+
+export const beyondCode = [
+  {
+    title: "MiniTec",
+    description:
+      "Working with children with disabilities has sharpened my patience, communication, empathy, and sense of responsibility. It is one of the clearest reminders that impact is not abstract."
+  },
+  {
+    title: "Mentorship",
+    description:
+      "Through GDG and ColorStack, I keep returning to mentorship because helping other students gain confidence and direction is part of how I want to lead."
+  },
+  {
+    title: "Theater and storytelling",
+    description:
+      "My theater background shaped how I communicate, present, tell stories, and think about emotion, presence, and audience experience."
+  },
+  {
+    title: "Soccer",
+    description:
+      "Soccer keeps me connected to discipline, teamwork, energy, and the kind of consistency that only matters if you bring it repeatedly."
+  },
+  {
+    title: "DJing and music",
+    description:
+      "DJing and music production give me a creative outlet that keeps experimentation, rhythm, and taste active outside of code."
+  }
+];
+
+export const technicalBreakdown = {
+  title: "Technical breakdown - STAR",
+  intro:
+    "STAR matters because it pushed me to think like a builder, not just a coder. The technical decisions were shaped by speed, usability, and the need to validate the idea in real environments.",
+  points: [
+    "Built the product in React with Vite to move quickly, iterate the interface fast, and keep the system lightweight enough for early-stage testing.",
+    "Used the OpenAI API as the intelligence layer for planning, study support, and student-facing guidance features.",
+    "Handled state and user flow with Context API and localStorage so the experience could stay simple while still feeling personalized and persistent.",
+    "Approached the architecture as a real product system, not just a demo, by thinking through feature grouping, user flow, and how the platform could evolve beyond the first version."
+  ]
+};
 
 export const capabilityGroups = [
   {
