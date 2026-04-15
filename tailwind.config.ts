@@ -12,12 +12,12 @@ const config: Config = {
     extend: {
       colors: {
         canvas: {
-          DEFAULT: "#050608",
-          soft: "#0b0d11"
+          DEFAULT: "#000000",
+          soft: "#0a0a0a"
         },
         accent: {
-          DEFAULT: "#8fc2ff",
-          soft: "rgba(143, 194, 255, 0.16)"
+          DEFAULT: "#0071e3",
+          soft: "rgba(0, 113, 227, 0.12)"
         }
       },
       fontFamily: {
@@ -25,8 +25,8 @@ const config: Config = {
         display: ["var(--font-display)", "sans-serif"]
       },
       boxShadow: {
-        ambient: "0 28px 80px rgba(0, 0, 0, 0.34)",
-        glow: "0 24px 80px rgba(118, 163, 255, 0.2)"
+        ambient: "0 28px 80px rgba(0, 0, 0, 0.60)",
+        glow: "0 24px 80px rgba(0, 113, 227, 0.18)"
       }
     }
   },

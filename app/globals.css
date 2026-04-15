@@ -1,33 +1,42 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   color-scheme: dark;
-  --color-bg: #050608;
-  --color-bg-soft: #0b0d11;
-  --color-surface: rgba(255, 255, 255, 0.07);
-  --color-surface-strong: rgba(255, 255, 255, 0.12);
-  --color-line: rgba(255, 255, 255, 0.1);
+  --color-bg: #000000;
+  --color-bg-soft: #0a0a0a;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-strong: rgba(255, 255, 255, 0.09);
+  --color-line: rgba(255, 255, 255, 0.08);
   --color-text: #f5f7fb;
-  --color-text-muted: rgba(245, 247, 251, 0.68);
-  --color-text-soft: rgba(245, 247, 251, 0.48);
-  --color-accent: #8fc2ff;
-  --color-accent-soft: rgba(143, 194, 255, 0.16);
-  --color-glow: rgba(118, 163, 255, 0.26);
+  --color-text-muted: rgba(245, 247, 251, 0.60);
+  --color-text-soft: rgba(245, 247, 251, 0.36);
+  --color-accent: #0071e3;
+  --color-accent-soft: rgba(0, 113, 227, 0.12);
+  --color-glow: rgba(0, 113, 227, 0.14);
   --shell-width: min(1440px, calc(100vw - 2rem));
 }
 
 html {
-  background: var(--color-bg);
+  background: #000000;
 }
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(126, 162, 255, 0.16), transparent 30%),
-    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.09), transparent 26%),
-    linear-gradient(180deg, #06070a 0%, #050608 26%, #040507 100%);
+  background: #000000;
+}
+
+/* Custom cursor — only on pointer devices */
+@media (pointer: fine) {
+  *,
+  a,
+  button,
+  summary,
+  [role="button"],
+  [tabindex] {
+    cursor: none !important;
+  }
 }
 
 * {
@@ -35,7 +44,7 @@ body {
 }
 
 ::selection {
-  background: rgba(143, 194, 255, 0.24);
+  background: rgba(0, 113, 227, 0.28);
   color: #ffffff;
 }
 
@@ -88,21 +97,22 @@ body {
     @apply relative py-24 md:py-32 lg:py-40;
   }
 
+  /* Clean label — colored uppercase text with number prefix */
   .section-kicker {
-    @apply mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.36em] text-[var(--color-text-soft)] backdrop-blur-xl;
-    background: rgba(255, 255, 255, 0.04);
+    @apply mb-5 block text-[0.65rem] font-semibold uppercase tracking-[0.4em];
+    color: var(--color-accent);
   }
 
   .headline-xl {
-    @apply font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] md:text-7xl lg:text-[6.75rem];
+    @apply font-display text-5xl font-semibold leading-[0.92] tracking-[-0.05em] md:text-7xl lg:text-[6.75rem];
   }
 
   .headline-lg {
-    @apply font-display text-4xl font-semibold leading-[0.96] tracking-[-0.05em] md:text-6xl lg:text-[5.25rem];
+    @apply font-display text-4xl font-semibold leading-[0.96] tracking-[-0.045em] md:text-6xl lg:text-[5.25rem];
   }
 
   .headline-md {
-    @apply font-display text-3xl font-semibold leading-[1.02] tracking-[-0.05em] md:text-5xl;
+    @apply font-display text-3xl font-semibold leading-[1.02] tracking-[-0.04em] md:text-5xl;
   }
 
   .copy-lg {
@@ -113,57 +123,81 @@ body {
     @apply text-sm leading-6 md:text-[0.95rem];
   }
 
+  /* Minimal glass with hover reaction */
   .glass-panel {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-    box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.32),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    @apply rounded-[2rem] border backdrop-blur-2xl;
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    @apply rounded-[2rem] border backdrop-blur-xl;
+    border-color: rgba(255, 255, 255, 0.08);
+    transition: border-color 0.22s ease, background 0.22s ease;
   }
 
+  .glass-panel:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.065);
+  }
+
+  /* Solid Apple blue with shimmer on hover */
   .primary-button {
-    @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-black transition duration-500 md:px-7 md:py-3.5;
-    background: linear-gradient(135deg, #f6f8ff 0%, #9dc9ff 100%);
-    box-shadow: 0 18px 45px rgba(122, 165, 255, 0.22);
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 md:px-7 md:py-3.5;
+    background: var(--color-accent);
+  }
+
+  .primary-button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 65%
+    );
+    transform: translateX(-110%);
+    transition: transform 0.55s ease;
   }
 
   .primary-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 24px 60px rgba(122, 165, 255, 0.28);
+    background: #0077ed;
+  }
+
+  .primary-button:hover::after {
+    transform: translateX(110%);
   }
 
   .secondary-button {
-    @apply inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold text-[var(--color-text)] transition duration-500 md:px-7 md:py-3.5;
-    background: rgba(255, 255, 255, 0.03);
+    @apply inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold text-[var(--color-text)] transition duration-200 md:px-7 md:py-3.5;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.10);
     backdrop-filter: blur(18px);
   }
 
   .secondary-button:hover {
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 
+  /* Orbs disabled */
   .ambient-orb {
-    @apply pointer-events-none absolute rounded-full blur-3xl;
-    background: radial-gradient(circle, rgba(143, 194, 255, 0.5) 0%, rgba(143, 194, 255, 0.08) 42%, transparent 70%);
+    display: none;
   }
 
+  /* Clean dark panel */
   .visual-shell {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-      radial-gradient(circle at top, rgba(143, 194, 255, 0.18), transparent 35%),
-      #0a0d13;
+    background: #0a0a0a;
     @apply relative overflow-hidden rounded-[2rem] border;
-    box-shadow:
-      0 30px 80px rgba(0, 0, 0, 0.34),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-color 0.22s ease;
   }
 
+  .visual-shell:hover {
+    border-color: rgba(255, 255, 255, 0.13);
+  }
+
+  /* Grid disabled */
   .grid-glow {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-    background-size: 54px 54px;
+    display: none;
   }
 
   .text-balance {
@@ -171,37 +205,43 @@ body {
   }
 }
 
+/* Noise disabled */
 .hero-noise::before,
 .panel-noise::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.7px, transparent 0.7px);
-  background-size: 22px 22px;
-  opacity: 0.08;
-  pointer-events: none;
+  display: none;
 }
 
 .mask-fade {
   mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 82%, transparent 100%);
 }
 
+/* Hero rings disabled */
 .hero-ring {
-  position: absolute;
-  inset: auto;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: none;
 }
 
 .project-spotlight {
-  background:
-    radial-gradient(circle at 50% 12%, rgba(143, 194, 255, 0.22), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    #090b10;
+  background: #0a0a0a;
+  transition: border-color 0.22s ease;
 }
 
+.project-spotlight:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Plain white hairline */
 .timeline-line {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(143, 194, 255, 0.7), rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.10);
+}
+
+/* Scroll indicator bounce */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.28; }
+  50% { transform: translateY(5px); opacity: 0.50; }
+}
+
+.scroll-bounce {
+  animation: scrollBounce 2s ease-in-out infinite;
 }
 
 @media (max-width: 767px) {
@@ -226,5 +266,9 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .scroll-bounce {
+    animation: none;
   }
 }
