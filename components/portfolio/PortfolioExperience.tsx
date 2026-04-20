@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowRight, ArrowDown } from "lucide-react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -28,26 +28,280 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-/* ─── Custom cursor ─────────────────────────────────────────────────────────── */
-function Cursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
+/* ─── Konami code hook ──────────────────────────────────────────────────────── */
+const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+
+function useKonamiCode(onSuccess: () => void) {
+  const progress = useRef(0);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === KONAMI[progress.current]) {
+        progress.current++;
+        if (progress.current === KONAMI.length) {
+          onSuccess();
+          progress.current = 0;
+        }
+      } else {
+        progress.current = e.key === KONAMI[0] ? 1 : 0;
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onSuccess]);
+}
+
+/* ─── ScrambleText ──────────────────────────────────────────────────────────── */
+const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+function ScrambleText({ text, className }: { text: string; className?: string }) {
+  const [display, setDisplay] = useState(text);
+  const elRef = useRef<HTMLSpanElement>(null);
+  const animRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    const move = (e: MouseEvent) => {
-      if (!dotRef.current) return;
-      dotRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-      dotRef.current.style.opacity = "1";
+    if (prefersReducedMotion) return;
+    const el = elRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        observer.disconnect();
+        let iteration = 0;
+        const total = text.length;
+        if (animRef.current) clearInterval(animRef.current);
+        animRef.current = setInterval(() => {
+          setDisplay(
+            text
+              .split("")
+              .map((char, i) => {
+                if (char === " ") return " ";
+                if (i < Math.floor(iteration)) return text[i];
+                return CHARS[Math.floor(Math.random() * CHARS.length)];
+              })
+              .join("")
+          );
+          iteration += 0.5;
+          if (iteration >= total) {
+            if (animRef.current) clearInterval(animRef.current);
+            setDisplay(text);
+          }
+        }, 40);
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      if (animRef.current) clearInterval(animRef.current);
     };
-    window.addEventListener("mousemove", move, { passive: true });
-    return () => window.removeEventListener("mousemove", move);
+  }, [text, prefersReducedMotion]);
+
+  return (
+    <span ref={elRef} className={className}>
+      {display}
+    </span>
+  );
+}
+
+/* ─── TiltCard ──────────────────────────────────────────────────────────────── */
+function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const handleMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (prefersReducedMotion || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    ref.current.style.transform = `perspective(1000px) rotateY(${x * 6}deg) rotateX(${-y * 5}deg) scale(1.012)`;
+  }, [prefersReducedMotion]);
+
+  const handleLeave = useCallback(() => {
+    if (!ref.current) return;
+    ref.current.style.transition = "transform 0.6s cubic-bezier(0.34,1.56,0.64,1)";
+    ref.current.style.transform = "perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)";
+    setTimeout(() => {
+      if (ref.current) ref.current.style.transition = "";
+    }, 600);
+  }, []);
+
+  const handleEnter = useCallback(() => {
+    if (!ref.current) return;
+    ref.current.style.transition = "transform 0.08s ease";
   }, []);
 
   return (
     <div
-      ref={dotRef}
-      style={{ opacity: 0 }}
-      className="pointer-events-none fixed left-0 top-0 z-[9999] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference"
-    />
+      ref={ref}
+      className={cn("tilt-card", className)}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      onMouseEnter={handleEnter}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─── Custom cursor ─────────────────────────────────────────────────────────── */
+function Cursor() {
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const ringPos = useRef({ x: 0, y: 0 });
+  const mousePos = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY };
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        dotRef.current.style.opacity = "1";
+      }
+    };
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const tick = () => {
+      ringPos.current.x = lerp(ringPos.current.x, mousePos.current.x, 0.1);
+      ringPos.current.y = lerp(ringPos.current.y, mousePos.current.y, 0.1);
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate(${ringPos.current.x}px, ${ringPos.current.y}px)`;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+
+    window.addEventListener("mousemove", move, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", move);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  return (
+    <>
+      <div
+        ref={dotRef}
+        style={{ opacity: 0 }}
+        className="pointer-events-none fixed left-0 top-0 z-[9999] h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference"
+      />
+      <div
+        ref={ringRef}
+        className="pointer-events-none fixed left-0 top-0 z-[9998] h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/30 mix-blend-difference"
+        style={{ opacity: 0.5 }}
+      />
+    </>
+  );
+}
+
+/* ─── Scroll progress bar ───────────────────────────────────────────────────── */
+function ScrollProgress() {
+  const barRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const update = () => {
+      if (!barRef.current) return;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      barRef.current.style.width = `${(window.scrollY / max) * 100}%`;
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+  return (
+    <div className="fixed inset-x-0 top-0 z-[9997] h-[1.5px] bg-white/[0.05]">
+      <div ref={barRef} className="h-full bg-[var(--color-accent)]" style={{ width: "0%", transition: "width 0.05s linear" }} />
+    </div>
+  );
+}
+
+/* ─── Konami toast ──────────────────────────────────────────────────────────── */
+function KonamiToast({ visible }: { visible: boolean }) {
+  const [render, setRender] = useState(false);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setRender(true);
+      setExiting(false);
+      const timer = setTimeout(() => setExiting(true), 2800);
+      const cleanup = setTimeout(() => setRender(false), 3200);
+      return () => { clearTimeout(timer); clearTimeout(cleanup); };
+    }
+  }, [visible]);
+
+  if (!render) return null;
+
+  return (
+    <div
+      className={cn(
+        "pointer-events-none fixed bottom-8 left-1/2 z-[9998]",
+        exiting ? "konami-toast-exit" : "konami-toast-enter"
+      )}
+    >
+      <div className="rounded-full border border-white/16 bg-black/90 px-6 py-3 backdrop-blur-xl">
+        <p className="whitespace-nowrap text-sm font-medium text-white/90">
+          ↑↑↓↓←→←→ &nbsp;·&nbsp; You found it. Nice moves.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Magnetic button wrapper ───────────────────────────────────────────────── */
+function Magnetic({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const handleMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.28;
+    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.28;
+    ref.current.style.transition = "transform 0.08s ease";
+    ref.current.style.transform = `translate(${x}px, ${y}px)`;
+  }, []);
+  const handleLeave = useCallback(() => {
+    if (!ref.current) return;
+    ref.current.style.transition = "transform 0.45s cubic-bezier(0.34,1.56,0.64,1)";
+    ref.current.style.transform = "translate(0,0)";
+  }, []);
+  return (
+    <div ref={ref} onMouseMove={handleMove} onMouseLeave={handleLeave}>
+      {children}
+    </div>
+  );
+}
+
+/* ─── Achievements ticker ───────────────────────────────────────────────────── */
+const TICKER_ITEMS = [
+  "1st Place — Tacos & Tech-ila",
+  "$1,000 Prize · Microsoft",
+  "1st Place — Borderland AI Hackathon",
+  "Innovator Award — STTE",
+  "NSF S-STEM Scholar",
+  "Bloomberg Tech Lab '25 & '26",
+  "Dell Tech Academy",
+  "Disney College Program",
+  "GPA 3.86 / 4.0",
+  "100+ Issues Resolved",
+  "ColorStack Technical Officer",
+  "GDG on Campus Mentor",
+];
+
+function AchievementsTicker() {
+  const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  return (
+    <div className="relative overflow-hidden border-y border-white/[0.06] bg-white/[0.01] py-3.5">
+      <div className="marquee-inner items-center gap-10">
+        {doubled.map((item, i) => (
+          <span key={i} className="flex shrink-0 items-center gap-10">
+            <span className="whitespace-nowrap text-[0.62rem] uppercase tracking-[0.38em] text-white/36">
+              {item}
+            </span>
+            <span className="text-white/14 select-none">·</span>
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -71,20 +325,17 @@ type SectionHeadingProps = {
 function SectionHeading({ eyebrow, title, description, align = "left" }: SectionHeadingProps) {
   return (
     <div className={cn("relative z-10 max-w-3xl", align === "center" && "mx-auto text-center")}>
-      <span className="section-kicker">{eyebrow}</span>
+      <span className="section-kicker">
+        <ScrambleText text={eyebrow} />
+      </span>
       <h2 className="headline-lg text-balance">{title}</h2>
       {description ? <p className="copy-lg mt-6 text-balance">{description}</p> : null}
     </div>
   );
 }
 
-/* ─── Project visual card ───────────────────────────────────────────────────── */
-type ProjectVisualProps = {
-  title: string;
-  labels: string[];
-};
-
-function ProjectVisual({ title, labels }: ProjectVisualProps) {
+/* ─── Project visual ────────────────────────────────────────────────────────── */
+function ProjectVisual({ title, labels }: { title: string; labels: string[] }) {
   return (
     <div className="visual-shell min-h-[24rem] p-8 md:min-h-[34rem] md:p-10">
       <div className="flex h-full flex-col justify-between">
@@ -101,7 +352,9 @@ function ProjectVisual({ title, labels }: ProjectVisualProps) {
                 index === 0 ? "bg-white/[0.06]" : "bg-white/[0.03]"
               )}
             >
-              <p className="text-[0.6rem] uppercase tracking-[0.36em] text-white/30">{index === 0 ? "Core" : "Layer"}</p>
+              <p className="text-[0.6rem] uppercase tracking-[0.36em] text-white/30">
+                {index === 0 ? "Core" : "Layer"}
+              </p>
               <p className="mt-3 text-sm font-medium text-white/70">{label}</p>
             </div>
           ))}
@@ -111,18 +364,55 @@ function ProjectVisual({ title, labels }: ProjectVisualProps) {
   );
 }
 
-/* ─── Hero portrait ─────────────────────────────────────────────────────────── */
+/* ─── Hero portrait with mouse parallax ─────────────────────────────────────── */
 function HeroPortrait() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const container = containerRef.current;
+    const img = imgRef.current;
+    if (!container || !img) return;
+
+    const handleMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / rect.width;
+      const dy = (e.clientY - cy) / rect.height;
+      img.style.transform = `translate(${dx * -18}px, ${dy * -14}px) scale(1.06)`;
+    };
+
+    const handleLeave = () => {
+      img.style.transform = "translate(0,0) scale(1.06)";
+    };
+
+    container.addEventListener("mousemove", handleMove);
+    container.addEventListener("mouseleave", handleLeave);
+    return () => {
+      container.removeEventListener("mousemove", handleMove);
+      container.removeEventListener("mouseleave", handleLeave);
+    };
+  }, [prefersReducedMotion]);
+
   return (
-    <div className="visual-shell relative min-h-[26rem] overflow-hidden md:min-h-[38rem]">
-      <Image
-        src="/imanolpic2.png.jpeg"
-        alt="Portrait of Imanol Galvan"
-        fill
-        priority
-        className="object-cover object-center"
-        sizes="(max-width: 1024px) 100vw, 46vw"
-      />
+    <div ref={containerRef} className="visual-shell relative min-h-[26rem] overflow-hidden md:min-h-[38rem]">
+      <div
+        ref={imgRef}
+        className="absolute inset-[-6%]"
+        style={{ transition: "transform 0.12s ease", transform: "scale(1.06)" }}
+      >
+        <Image
+          src="/imanolpic2.png.jpeg"
+          alt="Portrait of Imanol Galvan"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="(max-width: 1024px) 100vw, 46vw"
+        />
+      </div>
       <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(0,0,0,0.85)_100%)]" />
       <div className="absolute inset-x-7 bottom-7 md:inset-x-8 md:bottom-8">
         <p className="text-[0.6rem] uppercase tracking-[0.4em] text-white/38">Builder in focus</p>
@@ -148,7 +438,6 @@ function PortfolioNav() {
       const section = id ? document.getElementById(id) : null;
       section?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
@@ -174,9 +463,7 @@ function PortfolioNav() {
               data-scroll="true"
               className={cn(
                 "shrink-0 rounded-full px-3 py-2 text-[0.8rem] font-medium transition duration-200 xl:px-4",
-                activeSection === item.id
-                  ? "bg-white/[0.10] text-white"
-                  : "text-white/48 hover:text-white/80"
+                activeSection === item.id ? "bg-white/[0.10] text-white" : "text-white/48 hover:text-white/80"
               )}
             >
               {item.label}
@@ -185,12 +472,12 @@ function PortfolioNav() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-2 md:flex">
-          <a href={`mailto:${profile.email}`} className="secondary-button whitespace-nowrap text-[0.8rem]">
-            Email
-          </a>
-          <a href="#contact" data-scroll="true" className="primary-button whitespace-nowrap text-[0.8rem]">
-            {profile.primaryCta}
-          </a>
+          <Magnetic>
+            <a href={`mailto:${profile.email}`} className="secondary-button whitespace-nowrap text-[0.8rem]">Email</a>
+          </Magnetic>
+          <Magnetic>
+            <a href="#contact" data-scroll="true" className="primary-button whitespace-nowrap text-[0.8rem]">{profile.primaryCta}</a>
+          </Magnetic>
         </div>
 
         <details className="group relative md:hidden">
@@ -205,20 +492,13 @@ function PortfolioNav() {
           <div className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(18rem,calc(100vw-1.5rem))] rounded-[1.75rem] border border-white/10 bg-black/90 p-4 backdrop-blur-2xl">
             <div className="space-y-1">
               {navItems.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  data-scroll="true"
-                  className="block rounded-2xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/[0.05] hover:text-white"
-                >
+                <a key={item.id} href={`#${item.id}`} data-scroll="true" className="block rounded-2xl px-4 py-3 text-sm text-white/70 transition hover:bg-white/[0.05] hover:text-white">
                   {item.label}
                 </a>
               ))}
             </div>
             <div className="mt-3 border-t border-white/8 pt-3">
-              <a href={`mailto:${profile.email}`} className="primary-button w-full justify-center">
-                {profile.primaryCta}
-              </a>
+              <a href={`mailto:${profile.email}`} className="primary-button w-full justify-center">{profile.primaryCta}</a>
             </div>
           </div>
         </details>
@@ -236,35 +516,20 @@ function HeroSection() {
 
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current || !contentRef.current || !visualRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(Array.from(contentRef.current?.children ?? []), {
-        y: 36,
-        opacity: 0,
-        duration: 1.1,
-        stagger: 0.12,
-        ease: "power3.out",
-        delay: 0.2
+        y: 36, opacity: 0, duration: 1.1, stagger: 0.12, ease: "power3.out", delay: 0.2
       });
-
       gsap.fromTo(
         visualRef.current,
         { scale: 0.92, y: 32, opacity: 0 },
         { scale: 1, y: 0, opacity: 1, duration: 1.4, ease: "power3.out", delay: 0.3 }
       );
-
       gsap.to(visualRef.current, {
-        yPercent: -10,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
+        yPercent: -10, ease: "none",
+        scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: true }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -276,13 +541,17 @@ function HeroSection() {
           <h1 className="headline-xl max-w-4xl text-balance">{profile.hero.title}</h1>
           <p className="copy-lg max-w-xl text-balance">{profile.hero.subtitle}</p>
           <div className="flex flex-wrap gap-3 pt-1">
-            <a href="#projects" data-scroll="true" className="primary-button">
-              View featured work
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </a>
-            <a href="#vision" data-scroll="true" className="secondary-button">
-              See the direction
-            </a>
+            <Magnetic>
+              <div className="cta-ring">
+                <a href="#projects" data-scroll="true" className="primary-button">
+                  View featured work
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </div>
+            </Magnetic>
+            <Magnetic>
+              <a href="#vision" data-scroll="true" className="secondary-button">See the direction</a>
+            </Magnetic>
           </div>
           <div className="flex flex-wrap gap-x-10 gap-y-5 pt-2 md:pt-4">
             {profile.hero.stats.map((stat) => (
@@ -297,8 +566,6 @@ function HeroSection() {
           <HeroPortrait />
         </div>
       </div>
-
-      {/* Scroll indicator */}
       <div className="shell mt-16 flex items-center gap-3 md:mt-24">
         <div className="scroll-bounce text-white/28">
           <ArrowDown className="h-4 w-4" strokeWidth={1.5} />
@@ -317,18 +584,12 @@ function IdentitySection() {
 
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(textRefs.current.filter(Boolean), {
-        opacity: 0,
-        y: 30,
-        stagger: 0.18,
-        duration: 0.9,
-        ease: "power3.out",
+        opacity: 0, y: 30, stagger: 0.18, duration: 0.9, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 72%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -363,30 +624,20 @@ function ProjectsSection() {
 
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(".project-card");
-
-      cards.forEach((card) => {
+      gsap.utils.toArray<HTMLElement>(".project-card").forEach((card) => {
         const mockup = card.querySelector(".project-mockup");
         const copy = card.querySelectorAll(".project-copy > *");
-
-        gsap.fromTo(
-          mockup,
-          { y: 60, scale: 0.94, opacity: 0 },
-          {
-            y: 0, scale: 1, opacity: 1, duration: 1.1, ease: "power3.out",
-            scrollTrigger: { trigger: card, start: "top 72%", end: "top 30%", scrub: true }
-          }
-        );
-
+        gsap.fromTo(mockup, { y: 60, scale: 0.94, opacity: 0 }, {
+          y: 0, scale: 1, opacity: 1, duration: 1.1, ease: "power3.out",
+          scrollTrigger: { trigger: card, start: "top 72%", end: "top 30%", scrub: true }
+        });
         gsap.from(Array.from(copy), {
           opacity: 0, y: 26, duration: 0.8, stagger: 0.08, ease: "power3.out",
           scrollTrigger: { trigger: card, start: "top 68%" }
         });
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -396,14 +647,11 @@ function ProjectsSection() {
         <SectionHeading
           eyebrow="02 — Projects"
           title="Built around real traction, real users, and real direction."
-          description="From pitch-winning AI products to systems labs, startup programs, and current venture ideas — each project marks a step toward building technology with strong human value."
+          description="From pitch-winning AI products to systems labs, startup programs, and current ventures — each project marks a step toward building technology with strong human value."
         />
         <div className="space-y-6 md:space-y-8">
           {featuredProjects.map((project, index) => (
-            <article
-              key={project.title}
-              className="project-card project-spotlight relative overflow-hidden rounded-[2rem] border px-5 py-6 md:px-8 md:py-8 lg:min-h-[44rem] lg:px-10 lg:py-10"
-            >
+            <TiltCard key={project.title} className="project-card project-spotlight relative overflow-hidden rounded-[2rem] border px-5 py-6 md:px-8 md:py-8 lg:min-h-[44rem] lg:px-10 lg:py-10">
               <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12">
                 <div className={cn("project-copy order-2 space-y-5 lg:order-1", index % 2 === 1 && "lg:order-2")}>
                   <div className="flex flex-wrap gap-2 text-[0.65rem] uppercase tracking-[0.34em] text-white/34">
@@ -429,7 +677,7 @@ function ProjectsSection() {
                   <ProjectVisual title={project.tagline} labels={project.accents} />
                 </div>
               </div>
-            </article>
+            </TiltCard>
           ))}
         </div>
       </div>
@@ -441,17 +689,14 @@ function ProjectsSection() {
 function MomentumSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(".momentum-card", {
         opacity: 0, y: 34, duration: 0.85, stagger: 0.08, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 72%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -477,9 +722,7 @@ function MomentumSection() {
             <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Currently learning</p>
             <div className="mt-5 space-y-2">
               {currentMomentum.learning.map((item) => (
-                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">
-                  {item}
-                </div>
+                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">{item}</div>
               ))}
             </div>
           </article>
@@ -487,9 +730,7 @@ function MomentumSection() {
             <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Traction and signals</p>
             <div className="mt-5 grid gap-2 md:grid-cols-2">
               {currentMomentum.traction.map((item) => (
-                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">
-                  {item}
-                </div>
+                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">{item}</div>
               ))}
             </div>
           </article>
@@ -499,9 +740,7 @@ function MomentumSection() {
             <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">How I build</p>
             <div className="mt-5 space-y-2">
               {currentMomentum.operatingSystem.map((item) => (
-                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">
-                  {item}
-                </div>
+                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">{item}</div>
               ))}
             </div>
           </article>
@@ -510,9 +749,7 @@ function MomentumSection() {
             <p className="mt-4 text-[0.95rem] leading-7 text-white/72">{technicalBreakdown.intro}</p>
             <div className="mt-5 space-y-2">
               {technicalBreakdown.points.map((item) => (
-                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">
-                  {item}
-                </div>
+                <div key={item} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">{item}</div>
               ))}
             </div>
           </article>
@@ -526,26 +763,18 @@ function MomentumSection() {
 function JourneySection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(".journey-card", {
         opacity: 0, y: 50, duration: 0.9, stagger: 0.12, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 70%" }
       });
-
-      gsap.fromTo(
-        ".timeline-progress",
-        { scaleY: 0, transformOrigin: "top center" },
-        {
-          scaleY: 1, ease: "none",
-          scrollTrigger: { trigger: sectionRef.current, start: "top 60%", end: "bottom 80%", scrub: true }
-        }
-      );
+      gsap.fromTo(".timeline-progress", { scaleY: 0, transformOrigin: "top center" }, {
+        scaleY: 1, ease: "none",
+        scrollTrigger: { trigger: sectionRef.current, start: "top 60%", end: "bottom 80%", scrub: true }
+      });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -555,7 +784,7 @@ function JourneySection() {
         <SectionHeading
           eyebrow="04 — Journey"
           title="Growth measured through action, not waiting."
-          description="Step in early, learn in public, build under pressure, mentor others, and keep compounding across technology, leadership, and entrepreneurship."
+          description="Step in early, learn in public, build under pressure, mentor others, and keep compounding."
         />
         <div className="relative mt-14 grid gap-8 md:mt-20 lg:grid-cols-[0.12fr_0.88fr] lg:gap-12">
           <div className="relative hidden justify-center lg:flex">
@@ -588,10 +817,8 @@ function JourneySection() {
 function ExperienceSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(".experience-card", {
         opacity: 0, y: 36, duration: 0.85, stagger: 0.08, ease: "power3.out",
@@ -602,7 +829,6 @@ function ExperienceSection() {
         scrollTrigger: { trigger: sectionRef.current, start: "top 58%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -612,8 +838,31 @@ function ExperienceSection() {
         <SectionHeading
           eyebrow="05 — Experience"
           title="Real roles, real responsibility, leadership that shows up in public."
-          description="Leadership roles, operational work, student support, community service, and the environments where I have actually had to deliver."
+          description="Leadership roles, operational work, student support, community service, and environments where I have actually had to deliver."
         />
+
+        {/* Photo strip */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            { src: "/imanolpic2.png.jpeg", label: "Imanol Galvan" },
+            { src: "/dom1.jpg", label: "Disney College Program" },
+            { src: "/dom2.jpg", label: "On the ground" },
+            { src: "/imanol.png", label: "In the room" },
+          ].map((photo) => (
+            <div key={photo.src} className="photo-card aspect-[3/4]">
+              <Image
+                src={photo.src}
+                alt={photo.label}
+                fill
+                className="object-cover object-center transition-transform duration-500 hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_60%,rgba(0,0,0,0.70)_100%)]" />
+              <p className="absolute bottom-4 left-4 text-[0.6rem] uppercase tracking-[0.36em] text-white/50">{photo.label}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="grid gap-4 xl:grid-cols-2">
           {professionalExperience.map((item) => (
             <article key={`${item.role}-${item.organization}`} className="experience-card glass-panel px-6 py-6 md:px-7 md:py-7">
@@ -623,14 +872,13 @@ function ExperienceSection() {
               <p className="copy-lg mt-5 max-w-3xl">{item.description}</p>
               <div className="mt-5 space-y-2">
                 {item.highlights.map((highlight) => (
-                  <div key={highlight} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">
-                    {highlight}
-                  </div>
+                  <div key={highlight} className="rounded-[1.25rem] border border-white/8 bg-white/[0.02] px-4 py-4 text-sm leading-7 text-white/68">{highlight}</div>
                 ))}
               </div>
             </article>
           ))}
         </div>
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {leadershipRoles.map((item) => (
             <article key={`${item.organization}-${item.role}`} className="leadership-card glass-panel px-6 py-6">
@@ -649,17 +897,14 @@ function ExperienceSection() {
 function CapabilitiesSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(".capability-card", {
         opacity: 0, y: 36, duration: 0.8, stagger: 0.08, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 72%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -696,17 +941,14 @@ function CapabilitiesSection() {
 function BeyondCodeSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(".beyond-card", {
         opacity: 0, y: 30, duration: 0.8, stagger: 0.08, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 72%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -737,17 +979,14 @@ function VisionSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const phraseRefs = useRef<Array<HTMLParagraphElement | null>>([]);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(phraseRefs.current.filter(Boolean), {
         opacity: 0, y: 36, stagger: 0.14, duration: 0.9, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 72%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -756,7 +995,9 @@ function VisionSection() {
       <div className="shell rounded-[2.4rem] border border-white/8 bg-white/[0.02] px-6 py-16 md:px-10 md:py-20 lg:px-14 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[0.34fr_0.66fr] lg:gap-14">
           <div className="space-y-6">
-            <span className="section-kicker">08 — Vision</span>
+            <span className="section-kicker">
+              <ScrambleText text="08 — Vision" />
+            </span>
             <h2 className="headline-lg text-balance">A philosophy built around movement, experimentation, and becoming.</h2>
             <p className="copy-lg max-w-xl text-balance">
               The mindset underneath the resume lines: how I think about action, growth, risk, and building a life with intention.
@@ -800,17 +1041,14 @@ function VisionSection() {
 function ContactSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-
   useEffect(() => {
     if (prefersReducedMotion || !sectionRef.current) return;
-
     const ctx = gsap.context(() => {
       gsap.from(".contact-reveal", {
         opacity: 0, y: 30, duration: 0.85, stagger: 0.1, ease: "power3.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 72%" }
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, [prefersReducedMotion]);
 
@@ -819,29 +1057,33 @@ function ContactSection() {
       <div className="shell glass-panel overflow-hidden px-6 py-10 md:px-10 md:py-14 lg:px-14 lg:py-16">
         <div className="relative z-10 grid gap-10 lg:grid-cols-[0.95fr_0.05fr_0.45fr] lg:items-end">
           <div className="space-y-6">
-            <span className="contact-reveal section-kicker">09 — Contact</span>
+            <span className="contact-reveal section-kicker">
+              <ScrambleText text="09 — Contact" />
+            </span>
             <h2 className="contact-reveal headline-lg max-w-4xl text-balance">
               I want to build technology companies and platforms that help people grow, adapt, and move forward.
             </h2>
             <p className="contact-reveal copy-lg max-w-2xl">{profile.availability}</p>
             <div className="contact-reveal flex flex-wrap gap-3">
-              <a href={`mailto:${profile.email}`} className="primary-button">{profile.primaryCta}</a>
-              <a href="#hero" data-scroll="true" className="secondary-button">Back to top</a>
+              <Magnetic>
+                <div className="cta-ring">
+                  <a href={`mailto:${profile.email}`} className="primary-button">{profile.primaryCta}</a>
+                </div>
+              </Magnetic>
+              <Magnetic>
+                <a href="#hero" data-scroll="true" className="secondary-button">Back to top</a>
+              </Magnetic>
             </div>
           </div>
           <div className="hidden h-full w-px bg-white/8 lg:block" />
           <div className="space-y-7">
             <div className="contact-reveal">
               <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Email</p>
-              <a href={`mailto:${profile.email}`} className="mt-3 block text-xl font-semibold text-white transition-colors hover:text-[var(--color-accent)]">
-                {profile.email}
-              </a>
+              <a href={`mailto:${profile.email}`} className="mt-3 block text-xl font-semibold text-white transition-colors hover:text-[var(--color-accent)]">{profile.email}</a>
             </div>
             <div className="contact-reveal">
               <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Phone</p>
-              <a href="tel:+19156303282" className="mt-3 block text-lg text-white/70 transition-colors hover:text-[var(--color-accent)]">
-                {profile.phone}
-              </a>
+              <a href="tel:+19156303282" className="mt-3 block text-lg text-white/70 transition-colors hover:text-[var(--color-accent)]">{profile.phone}</a>
             </div>
             <div className="contact-reveal">
               <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Location</p>
@@ -850,17 +1092,15 @@ function ContactSection() {
             <div className="contact-reveal">
               <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Education</p>
               <p className="mt-3 text-[0.95rem] text-white/70">{profile.education.school}</p>
-              <p className="mt-1.5 text-sm text-white/44">
-                {profile.education.degree} · {profile.education.minor} · {profile.education.graduation}
-              </p>
+              <p className="mt-1.5 text-sm text-white/44">{profile.education.degree} · {profile.education.minor} · {profile.education.graduation}</p>
             </div>
             <div className="contact-reveal">
               <p className="text-[0.6rem] uppercase tracking-[0.38em] text-white/30">Elsewhere</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {socialLinks.map((social) => (
-                  <a key={social.label} href={social.href} target="_blank" rel="noreferrer" className="secondary-button text-[0.8rem]">
-                    {social.label}
-                  </a>
+                  <Magnetic key={social.label}>
+                    <a href={social.href} target="_blank" rel="noreferrer" className="secondary-button text-[0.8rem]">{social.label}</a>
+                  </Magnetic>
                 ))}
               </div>
             </div>
@@ -873,12 +1113,48 @@ function ContactSection() {
 
 /* ─── Root ──────────────────────────────────────────────────────────────────── */
 export default function PortfolioExperience() {
+  const [konamiVisible, setKonamiVisible] = useState(false);
+
+  /* Console easter egg */
+  useEffect(() => {
+    console.group("%c Imanol Galvan — Portfolio ", "background:#0071e3;color:#fff;padding:4px 10px;border-radius:4px;font-weight:700;font-size:13px;");
+    console.log("%cHey, curious developer. 👋", "color:#0071e3;font-size:14px;font-weight:600;");
+    console.log("%cYou found the console. I like you already.", "color:rgba(245,247,251,0.75);font-size:12px;");
+    console.log("%cWant to build something together?", "color:rgba(245,247,251,0.5);font-size:12px;");
+    console.log("%c→ igalvan6@miners.utep.edu", "color:#0071e3;font-size:12px;font-weight:500;");
+    console.log("%c→ github.com/Imanol2006", "color:#0071e3;font-size:12px;font-weight:500;");
+    console.groupEnd();
+  }, []);
+
+  /* Tab title easter egg */
+  useEffect(() => {
+    const title = document.title;
+    const handleBlur  = () => { document.title = "Come back 👋 — Imanol"; };
+    const handleFocus = () => { document.title = title; };
+    window.addEventListener("blur",  handleBlur);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("blur",  handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
+  /* Konami code */
+  const triggerKonami = useCallback(() => {
+    setKonamiVisible(true);
+    setTimeout(() => setKonamiVisible(false), 3200);
+  }, []);
+  useKonamiCode(triggerKonami);
+
   return (
     <div className="relative">
       <Cursor />
+      <ScrollProgress />
+      <KonamiToast visible={konamiVisible} />
       <PortfolioNav />
       <main>
         <HeroSection />
+        <AchievementsTicker />
         <Divider />
         <IdentitySection />
         <Divider />
