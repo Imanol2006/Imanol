@@ -1,18 +1,18 @@
 export const profile = {
   name: "Imanol Galvan",
   initials: "IG",
-  role: "Computer science, AI, entrepreneurship, and leadership",
+  role: "Computer science, AI, entrepreneurship, leadership, and digital product work",
   location: "El Paso, Texas",
   phone: "(915) 630-3282",
   email: "igalvan6@miners.utep.edu",
   availability:
-    "Open to internships, startup opportunities, founder-led teams, freelance web work, and ambitious collaborators building useful technology.",
+    "Open to internships, startup opportunities, founder-led teams, freelance web work, and collaborators building useful technology.",
   primaryCta: "Start the conversation",
   hero: {
-    eyebrow: "Personal flagship portfolio",
-    title: "I build AI products, test startup ideas in real environments, and grow through execution, not theory.",
+    eyebrow: "Portfolio in motion",
+    title: "I build useful software, test ideas in real environments, and grow through execution.",
     subtitle:
-      "Computer Science student at UTEP | NSF S-STEM Scholar | Builder, mentor, officer, and early-stage founder compounding momentum through software, startup ecosystems, digital work, and community leadership.",
+      "Computer Science student at UTEP, NSF S-STEM Scholar, and builder moving across software, startup ecosystems, digital work, and community leadership.",
     stats: [
       { label: "Education", value: "UTEP Computer Science" },
       { label: "Scholar", value: "NSF S-STEM" },
@@ -29,7 +29,7 @@ export const profile = {
 
 export const navItems = [
   { id: "hero", label: "Overview" },
-  { id: "identity", label: "Identity" },
+  { id: "activity", label: "Now" },
   { id: "projects", label: "Projects" },
   { id: "momentum", label: "Momentum" },
   { id: "journey", label: "Journey" },
@@ -40,10 +40,64 @@ export const navItems = [
   { id: "contact", label: "Contact" }
 ];
 
+export const recentFieldNotes = [
+  {
+    title: "Entrepreneurial Mindset Microcredential",
+    period: "Mike Loya Center · Current",
+    summary:
+      "Working through strengths, growth mindset, creative problem solving, prototyping, and communicating the value behind an idea. It reflects how seriously I take entrepreneurship as both a discipline and a way of thinking.",
+    tags: ["Entrepreneurship", "Mindset", "Prototyping"]
+  },
+  {
+    title: "ColorStack technical workshop",
+    period: "ColorStack at UTEP",
+    summary:
+      "Presented on supervised and unsupervised learning with Monet Nevarez, turning machine learning concepts into examples that other students could actually connect with and use.",
+    tags: ["Teaching", "Machine Learning", "Leadership"]
+  },
+  {
+    title: "Miner Tank with Black Box",
+    period: "GDG on Campus: UTEP",
+    summary:
+      "Pitched Black Box as a digital performance studio for structured AI and community-driven acting feedback, then earned 3rd place in a strong, multilingual competitive room.",
+    tags: ["Pitching", "Black Box", "Execution"]
+  },
+  {
+    title: "Steele Consulting hackathon",
+    period: "Recent competition",
+    summary:
+      "Built a JavaScript game in Phaser under pressure, learning the library fast, debugging constantly, and shipping a working experience before presentation. Our team placed 3rd.",
+    tags: ["Hackathon", "JavaScript", "Debugging"]
+  },
+  {
+    title: "INSIGHTS event support",
+    period: "SCRSEF · Science on Screen · DinoTracks",
+    summary:
+      "Supporting outreach, event operations, digital content, and web-facing work at Insights Science Discovery while staying active in programs that connect STEAM to real students and families.",
+    tags: ["Community", "Digital Content", "STEAM"]
+  },
+  {
+    title: "Break Through Tech AI",
+    period: "Cornell Tech initiative",
+    summary:
+      "Accepted into the 2026–2027 Break Through Tech AI program, expanding the machine learning side of my path through structured technical training, mentorship, and portfolio-level work.",
+    tags: ["AI", "Data Science", "Growth"]
+  }
+];
+
+export const storyFrames = [
+  { src: "/imanolpic2.png.jpeg", title: "Portrait", caption: "Founder energy, but still student-grounded." },
+  { src: "/dom1.jpg", title: "With people", caption: "A lot of growth has happened in rooms, teams, and communities." },
+  { src: "/lab-build.jpg", title: "On the build side", caption: "Coding under deadlines, learning tools fast, and making things work." },
+  { src: "/science-floor.jpg", title: "In active environments", caption: "Science fairs, outreach spaces, and events where execution is visible." },
+  { src: "/insights.png", title: "INSIGHTS", caption: "Digital and community work connected to real education programs." },
+  { src: "/insightsdino.png", title: "DinoTracks", caption: "Creative outreach work that adds range beyond software alone." }
+];
+
 export const identityMoments = [
-  "I build at the intersection of software engineering, artificial intelligence, entrepreneurship, and human-centered technology, but the deeper pattern is simpler: I move first, learn fast, and keep building in public.",
-  "A lot of my growth has come from taking on visible responsibility early, whether that means pitching ideas, leading workshops, serving in officer roles, mentoring students, or stepping into rooms where I know I will be forced to grow.",
-  "I care about technology that helps people learn, build confidence, discover opportunities, and move forward with more clarity, especially students, young builders, and people still figuring out what they are capable of."
+  "I build at the intersection of software engineering, artificial intelligence, entrepreneurship, and human-centered technology, but the deeper pattern is simpler: I move early, learn fast, and keep building in public.",
+  "A lot of my growth has come from taking on visible responsibility early, whether that means pitching ideas, leading workshops, serving in officer roles, mentoring students, or stepping into rooms that force me to grow.",
+  "I care about technology that helps people learn, build confidence, discover opportunities, and move forward with more clarity, especially students and early builders still figuring out what they are capable of."
 ];
 
 export const featuredProjects = [
@@ -53,7 +107,7 @@ export const featuredProjects = [
     tagline:
       "An AI-powered platform designed to help college students navigate academic life with more structure, clarity, and direction.",
     description:
-      "Built as founder and technical lead, STAR combines AI-generated lesson planning, task scheduling, opportunity discovery, and personalized study support into a single student-centered product. It grew through pitch competitions, founder programs, and repeated iteration rather than staying as just a classroom idea.",
+      "Built as founder and technical lead, STAR combines AI-generated lesson planning, task scheduling, opportunity discovery, and personalized study support into one student-centered product. It grew through pitch competitions, founder programs, and repeated iteration instead of staying as a classroom idea.",
     stack: ["React", "Vite", "JavaScript", "OpenAI API", "CSS", "Context API", "localStorage"],
     role: "Founder and technical lead",
     impact:
@@ -66,7 +120,7 @@ export const featuredProjects = [
     tagline:
       "A digital acting studio built to help performers rehearse, reflect, and improve when practicing alone.",
     description:
-      "Black Box is the current build focus: an AI-powered platform for scene analysis, script breakdown, guided rehearsal, performance recording, AI feedback, and measurable progress tracking. It brings together my interests in software, AI, storytelling, and performance into a product with a clear human problem behind it.",
+      "Black Box is the current build focus: an AI-powered platform for scene analysis, script breakdown, guided rehearsal, performance recording, AI feedback, and measurable progress tracking. It brings together my interests in software, AI, storytelling, and performance around a clear human problem.",
     stack: ["React", "Vite", "Tailwind", "OpenAI APIs", "MediaPipe", "OpenCV", "Supabase or PostgreSQL"],
     role: "Founder, product direction, full-stack and AI planning",
     impact:
@@ -79,7 +133,7 @@ export const featuredProjects = [
     tagline:
       "An AI tool that generates curated K-5 book collections and lesson plans for immersive learning environments.",
     description:
-      "Built during the Borderland AI Hackathon, the platform uses retrieval, embeddings, and generative AI to help educators quickly create relevant reading collections and companion learning materials. The project was designed around practical classroom use, not just technical novelty.",
+      "Built during the Borderland AI Hackathon, the platform uses retrieval, embeddings, and generative AI to help educators quickly create relevant reading collections and companion learning materials. The project was designed for practical classroom use, not just technical novelty.",
     stack: ["Streamlit", "LangChain", "FAISS", "MiniLM embeddings", "OpenAI API"],
     role: "Hackathon builder",
     impact:
@@ -92,7 +146,7 @@ export const featuredProjects = [
     tagline:
       "Hands-on engineering work spanning full-stack application flow and distributed messaging systems.",
     description:
-      "Worked with Bloomberg engineers across two technical lab experiences, contributing to a full-stack news feed system in 2025 and a RabbitMQ-based producer-consumer lab in 2026 focused on routing, acknowledgements, debugging, and containerized execution. These experiences pushed my understanding beyond application code into systems behavior.",
+      "Worked with Bloomberg engineers across two technical lab experiences, contributing to a full-stack news feed system in 2025 and a RabbitMQ-based producer-consumer lab in 2026 focused on routing, acknowledgements, debugging, and containerized execution. These experiences pushed my understanding beyond application code and into systems behavior.",
     stack: ["React", "Flask", "Redis", "Docker", "Python", "RabbitMQ"],
     role: "Participant and systems builder",
     impact:
@@ -168,6 +222,11 @@ export const currentMomentum = {
       title: "INSIGHTS digital work",
       detail:
         "Supporting ongoing web design, digital content, analytics, and outreach systems that connect programs, events, and students to real community-facing experiences."
+    },
+    {
+      title: "Founder and workshop momentum",
+      detail:
+        "Continuing to pitch Black Box, lead student-facing technical workshops through ColorStack, and keep building visibility through founder and campus programs."
     }
   ],
   learning: [
@@ -180,8 +239,11 @@ export const currentMomentum = {
     "1st Place - Tacos & Tech-ila audience pitch competition ($1000)",
     "1st Place - Borderland AI Hackathon",
     "Innovator Award - STTE Foundation",
+    "3rd Place - Miner Tank with Black Box",
+    "3rd Place - Steele Consulting hackathon",
     "Bloomberg Tech Lab participant - systems engineering and distributed systems",
     "Selected participant - Dell Tech Academy",
+    "Accepted - Break Through Tech AI 2026–2027 cohort",
     "NSF S-STEM Scholar",
     "100+ technical issues resolved at UTEP technology support"
   ],
