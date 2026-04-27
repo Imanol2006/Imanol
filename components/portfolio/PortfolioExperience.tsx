@@ -58,18 +58,58 @@ function ScrambleText({ text, className }: { text: string; className?: string })
 function Cursor() {
   const dot = useRef<HTMLDivElement>(null);
   const ring = useRef<HTMLDivElement>(null);
-  const rp = useRef({ x:0,y:0 }); const mp = useRef({ x:0,y:0 }); const raf = useRef<number|null>(null);
+  const rp = useRef({ x:-100, y:-100 });
+  const mp = useRef({ x:-100, y:-100 });
+  const raf = useRef<number|null>(null);
+  const hasMoved = useRef(false);
+
   useEffect(() => {
-    const move = (e: MouseEvent) => { mp.current={x:e.clientX,y:e.clientY}; if(dot.current){dot.current.style.transform=`translate(${e.clientX}px,${e.clientY}px)`;dot.current.style.opacity="1";} };
-    const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
-    const tick=()=>{ rp.current.x=lerp(rp.current.x,mp.current.x,0.1); rp.current.y=lerp(rp.current.y,mp.current.y,0.1); if(ring.current){ring.current.style.transform=`translate(${rp.current.x}px,${rp.current.y}px)`;ring.current.style.opacity="0.45";} raf.current=requestAnimationFrame(tick); };
-    raf.current=requestAnimationFrame(tick);
-    window.addEventListener("mousemove",move,{passive:true});
-    return ()=>{ window.removeEventListener("mousemove",move); if(raf.current)cancelAnimationFrame(raf.current); };
-  },[]);
+    // dot = 10px, ring = 36px — subtract half to center on cursor
+    const DOT = 5; const RING = 18;
+    const move = (e: MouseEvent) => {
+      mp.current = { x: e.clientX, y: e.clientY };
+      if (dot.current) {
+        dot.current.style.transform = `translate(${e.clientX - DOT}px, ${e.clientY - DOT}px)`;
+        if (!hasMoved.current) { dot.current.style.opacity = "1"; hasMoved.current = true; }
+      }
+    };
+    const leave = () => {
+      if (dot.current) dot.current.style.opacity = "0";
+      if (ring.current) ring.current.style.opacity = "0";
+    };
+    const enter = () => {
+      if (hasMoved.current) {
+        if (dot.current) dot.current.style.opacity = "1";
+        if (ring.current) ring.current.style.opacity = "1";
+      }
+    };
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const tick = () => {
+      rp.current.x = lerp(rp.current.x, mp.current.x, 0.12);
+      rp.current.y = lerp(rp.current.y, mp.current.y, 0.12);
+      if (ring.current && hasMoved.current) {
+        ring.current.style.transform = `translate(${rp.current.x - RING}px, ${rp.current.y - RING}px)`;
+        ring.current.style.opacity = "1";
+      }
+      raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    window.addEventListener("mousemove", move, { passive: true });
+    document.documentElement.addEventListener("mouseleave", leave);
+    document.documentElement.addEventListener("mouseenter", enter);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      document.documentElement.removeEventListener("mouseleave", leave);
+      document.documentElement.removeEventListener("mouseenter", enter);
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, []);
+
   return (<>
-    <div ref={dot} style={{opacity:0}} className="pointer-events-none fixed left-0 top-0 z-[9999] h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference"/>
-    <div ref={ring} style={{opacity:0}} className="pointer-events-none fixed left-0 top-0 z-[9998] h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/30 mix-blend-difference"/>
+    <div ref={dot} style={{ opacity: 0, willChange: "transform" }}
+      className="pointer-events-none fixed left-0 top-0 z-[9999] h-2.5 w-2.5 rounded-full bg-[var(--color-accent)]" />
+    <div ref={ring} style={{ opacity: 0, willChange: "transform" }}
+      className="pointer-events-none fixed left-0 top-0 z-[9998] h-9 w-9 rounded-full border border-[var(--color-accent)]/50 transition-opacity duration-150" />
   </>);
 }
 
@@ -272,10 +312,10 @@ function HeroSection() {
             </div>
           </div>
           <div className="story-card aspect-[4/5]">
-            <Image src="/speaking.jpg" alt="Speaking at conference" fill className="object-cover object-center" sizes="25vw"/>
+            <Image src="/speaking.jpg" alt="P21 VMS Pitch Challenge" fill className="object-cover object-center" sizes="25vw"/>
             <div className="absolute inset-x-3 bottom-3 z-10">
-              <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/45">On Stage</p>
-              <p className="mt-1 text-sm text-white/80">Pitching ideas in front of rooms that matter.</p>
+              <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/45">P21 Pitch Challenge</p>
+              <p className="mt-1 text-sm text-white/80">Presenting STAR at the 3rd Annual P21 VMS Pitch Challenge.</p>
             </div>
           </div>
           <div className="dark-card accent-card-orange flex flex-col justify-between p-5">
@@ -368,10 +408,10 @@ function ActivitySection() {
 
           {/* Photo card */}
           <div className="story-card col-span-12 md:col-span-4 md:row-span-2">
-            <Image src="/hackathon-coding.jpg" alt="Hackathon coding session" fill className="object-cover object-center" sizes="(max-width:768px) 100vw, 30vw"/>
+            <Image src="/hackathon-coding.jpg" alt="Building at the STTE Sandbox" fill className="object-cover object-center" sizes="(max-width:768px) 100vw, 30vw"/>
             <div className="absolute inset-x-4 bottom-4 z-10">
-              <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/45">Deep build mode</p>
-              <p className="mt-1.5 text-sm text-white/80">Screens full, whiteboard active, deadline in 4 hours.</p>
+              <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/45">STTE Sandbox · Pioneers 21</p>
+              <p className="mt-1.5 text-sm text-white/80">Working on STAR at the co-working space. Good environment to focus.</p>
             </div>
           </div>
 
@@ -424,13 +464,13 @@ function IdentitySection() {
                 <p className="mt-2 text-sm leading-6 text-white/80">Software is one part. Leadership, pitching, mentorship, and showing up in harder rooms complete the picture.</p>
               </div>
             </div>
-            {/* Second photo — speaking/teaching */}
+            {/* Second photo — ML workshop */}
             <div className="photo-card aspect-[4/3] max-w-xs" data-reveal>
-              <Image src="/teaching-ml.jpg" alt="Teaching ML workshop" fill className="object-cover object-top" sizes="(max-width:768px) 100vw, 22vw"/>
+              <Image src="/teaching-ml.jpg" alt="ColorStack ML workshop" fill className="object-cover object-top" sizes="(max-width:768px) 100vw, 22vw"/>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(5,7,11,0.88)_100%)]"/>
               <div className="absolute bottom-3 left-4 z-10">
-                <span className="pill pill-blue text-[0.58rem]">ColorStack · ML Workshop</span>
-                <p className="mt-1.5 text-xs text-white/75">Teaching supervised & unsupervised learning.</p>
+                <span className="pill pill-blue text-[0.58rem]">ColorStack at UTEP</span>
+                <p className="mt-1.5 text-xs text-white/75">Presented on supervised and unsupervised learning with Monet Nevarez.</p>
               </div>
             </div>
           </div>
@@ -500,12 +540,13 @@ function ProjectsSection() {
                   </div>
                 </div>
                 {/* Visual */}
-                {i === 0 ? (
+                {i === 1 ? (
                   <div className={cn("story-card min-h-[22rem] md:min-h-[28rem]",i%2===1&&"lg:order-1")} data-reveal>
-                    <Image src="/black-box-pitch.jpg" alt="Black Box pitch — AI-Powered Performance Studio" fill className="object-cover object-center" sizes="(max-width:1024px) 100vw, 50vw"/>
+                    <Image src="/black-box-pitch.jpg" alt="Black Box pitch at Miner Tank" fill className="object-cover object-center" sizes="(max-width:1024px) 100vw, 50vw"/>
                     <div className="absolute inset-x-5 bottom-5 z-10">
                       <div className="flex flex-wrap gap-1.5 mb-2">{p.accents.map(a=><span key={a} className={cn("pill",PROJECT_PILL_COLORS[i%5])}>{a}</span>)}</div>
-                      <p className="text-sm font-semibold text-white/90">{p.tagline}</p>
+                      <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/40">Miner Tank · GDG on Campus: UTEP</p>
+                      <p className="mt-1 text-sm font-semibold text-white/90">Pitched at Miner Tank — 3rd place.</p>
                     </div>
                   </div>
                 ) : (
@@ -646,10 +687,10 @@ function ExperienceSection() {
         {/* Photo strip */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4" data-reveal>
           {[
-            {src:"/teaching-ml.jpg",label:"Teaching ML · ColorStack"},
-            {src:"/hackathon-win.jpg",label:"STAR Hackathon Win"},
-            {src:"/gdg-event.jpg",label:"GDG · UTEP CS"},
-            {src:"/science-floor.jpg",label:"Science Floor · Insights"},
+            {src:"/teaching-ml.jpg",label:"ColorStack · ML Workshop"},
+            {src:"/hackathon-win.jpg",label:"Tacos & Tech-ila · 1st Place"},
+            {src:"/gdg-event.jpg",label:"GDG on Campus · UTEP"},
+            {src:"/science-floor.jpg",label:"Insights Science Discovery"},
           ].map(ph=>(
             <div key={ph.src} className="photo-card aspect-[3/4]">
               <Image src={ph.src} alt={ph.label} fill className="object-cover object-center" sizes="(max-width:768px) 50vw, 25vw"/>
@@ -756,21 +797,21 @@ function BeyondSection() {
             <h2 className="headline-lg text-balance mt-2">The human side changes how I build.</h2>
             <p className="copy-lg">Service, mentorship, performance, sports, and creative work shape how I lead, communicate, and stay grounded.</p>
             <div className="story-card aspect-[3/4]">
-              <Image src="/disney-castle.jpg" alt="Disney College Program — certificate night" fill className="object-cover object-top" sizes="(max-width:1024px) 100vw, 28vw"/>
+              <Image src="/disney-castle.jpg" alt="Disney College Program certificate night at Magic Kingdom" fill className="object-cover object-top" sizes="(max-width:1024px) 100vw, 28vw"/>
               <div className="absolute inset-x-4 bottom-4 z-10">
-                <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/40">Disney College Program</p>
-                <p className="mt-1.5 text-sm leading-6 text-white/80">A reminder that the biggest stages are earned by showing up every single day.</p>
+                <p className="text-[0.6rem] uppercase tracking-[0.3em] text-white/40">Magic Kingdom · DCP Certificate</p>
+                <p className="mt-1.5 text-sm leading-6 text-white/80">Certificate night at Magic Kingdom. One of the most meaningful experiences I've had.</p>
               </div>
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2 content-start" data-reveal>
             {/* Disney photo card — spans full width */}
             <div className="photo-card col-span-2 aspect-[16/7] md:aspect-[16/6]">
-              <Image src="/disney-university.jpg" alt="Disney University — Earning My Ears" fill className="object-cover object-center" sizes="(max-width:768px) 100vw, 55vw"/>
+              <Image src="/disney-university.jpg" alt="Disney University — first day, Earning My Ears" fill className="object-cover object-center" sizes="(max-width:768px) 100vw, 55vw"/>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(5,7,11,0.85)_100%)]"/>
               <div className="absolute bottom-4 left-5 z-10">
-                <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/45">Walt Disney World · College Program</p>
-                <p className="mt-1 text-sm text-white/80 font-medium">Earning My Ears — Disney University, Orlando</p>
+                <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/45">Disney University · Orlando, FL</p>
+                <p className="mt-1 text-sm text-white/80 font-medium">First day of the Disney College Program. Magic Kingdom operations.</p>
               </div>
             </div>
             {beyondCode.map((item,i)=>(
@@ -779,13 +820,13 @@ function BeyondSection() {
                 <p className="mt-3 text-sm leading-7 text-white/68">{item.description}</p>
               </article>
             ))}
-            {/* Disney costume — community service */}
+            {/* Minitec — community kids program */}
             <div className="photo-card aspect-[4/3]">
-              <Image src="/disney-costume.jpg" alt="Community service in Disney costume" fill className="object-cover object-center" sizes="(max-width:768px) 50vw, 27vw"/>
+              <Image src="/disney-costume.jpg" alt="Minitec community program with kids" fill className="object-cover object-center" sizes="(max-width:768px) 50vw, 27vw"/>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(5,7,11,0.9)_100%)]"/>
               <div className="absolute bottom-3 left-4 z-10">
-                <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/45">Community · Service</p>
-                <p className="mt-1 text-xs text-white/75">Giving back, showing up, staying grounded.</p>
+                <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/45">Minitec · Community</p>
+                <p className="mt-1 text-xs text-white/75">Part of Minitec — a program I've been involved with for years. These kids changed me.</p>
               </div>
             </div>
           </div>
